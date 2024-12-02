@@ -1,35 +1,7 @@
 use crate::day::Day;
-use std::{
-    collections::{HashMap, HashSet},
-    fs,
-};
+use std::collections::{HashMap, HashSet};
 
 pub struct Day1;
-
-impl Day1 {
-    fn input(&self) -> String {
-        fs::read_to_string("inputs/day1.txt").unwrap()
-    }
-
-    fn parse_input(&self, input: String) -> (Vec<i32>, Vec<i32>) {
-        input
-            .lines()
-            .map(|x| {
-                let col: Vec<_> = x.split_whitespace().collect();
-                let first = col[0];
-                let second = col[1];
-                (first.parse::<i32>(), second.parse::<i32>())
-            })
-            .flat_map(|x| {
-                if let (Ok(l), Ok(r)) = x {
-                    Some((l, r))
-                } else {
-                    None
-                }
-            })
-            .unzip()
-    }
-}
 
 impl Day for Day1 {
     fn day_of_month(&self) -> i32 {
@@ -38,7 +10,7 @@ impl Day for Day1 {
 
     fn task1(&self) -> i32 {
         let input = self.input();
-        let (left, right) = self.parse_input(input);
+        let (left, right) = parse_input(input);
         let left: Vec<i32> = {
             let mut x = left.clone();
             x.sort();
@@ -59,7 +31,7 @@ impl Day for Day1 {
 
     fn task2(&self) -> i32 {
         let input = self.input();
-        let (left, right) = self.parse_input(input);
+        let (left, right) = parse_input(input);
         let uniques = left.into_iter().collect::<HashSet<_>>();
         let map: HashMap<i32, i32> = HashMap::new();
         let rights = right.into_iter().fold(map, |mut acc, x| {
@@ -73,7 +45,21 @@ impl Day for Day1 {
     }
 }
 
-pub fn run() {
-    let day = Day1;
-    day.run_day();
+fn parse_input(input: String) -> (Vec<i32>, Vec<i32>) {
+    input
+        .lines()
+        .map(|x| {
+            let col: Vec<_> = x.split_whitespace().collect();
+            let first = col[0];
+            let second = col[1];
+            (first.parse::<i32>(), second.parse::<i32>())
+        })
+        .flat_map(|x| {
+            if let (Ok(l), Ok(r)) = x {
+                Some((l, r))
+            } else {
+                None
+            }
+        })
+        .unzip()
 }
