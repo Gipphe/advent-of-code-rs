@@ -1,7 +1,6 @@
-use std::io;
-
 mod day;
+mod day1;
 
-fn main() -> io::Result<()> {
-    day1::DAY.run_day();
+fn main() {
+    day1::run();
 }
