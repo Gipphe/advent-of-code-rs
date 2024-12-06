@@ -58,16 +58,21 @@ fn is_going_somewhere(cmp: fn(x: i32, y: i32) -> bool, start: i32, xs: &Vec<i32>
 fn has_smooth_gradient(xs: &Vec<i32>) -> i32 {
     let (_, failures, _) = xs
         .iter()
-        .fold((false, 0, 0), |(has_started, failures, y), x| {
+        .fold((false, 0, 0), |(has_started, failures, prev), curr| {
             if !has_started {
-                return (true, failures, *x);
+                return (true, failures, *curr);
             }
-            let diff = (x - y).abs();
+            println!("x: {}, y: {}", curr, prev);
+            let diff = (curr - prev).abs();
+            println!("diff: {}", diff);
             if diff >= 1 && diff <= 3 {
-                return (has_started, failures, *x);
+                println!("diff good");
+                return (has_started, failures, *curr);
             }
-            (has_started, failures + 1, y)
+            println!("diff no good");
+            (has_started, failures + 1, prev)
         });
+    println!("failures: {}", failures);
     failures
 }
 
@@ -77,4 +82,24 @@ fn satisfies_stable_conditions(tolerance: i32, xs: &Vec<i32>) -> bool {
     let smooth_gradient_failures = has_smooth_gradient(xs);
     (rising_failures <= tolerance || sinking_failures <= tolerance)
         && smooth_gradient_failures <= tolerance
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+
+    #[test]
+    fn handles_tolerance_1() {
+        let GOOD_CASE: Vec<i32> = vec![25, 27, 29, 32, 35, 37, 35];
+        let actual = satisfies_stable_conditions(1, &GOOD_CASE);
+        assert_eq!(actual, true);
+    }
+
+    #[test]
+    fn handles_tolerance_2() {
+        let GOOD_CASE: Vec<i32> = vec![25, 27, 29, 32, 35, 37, 35];
+        let actual = satisfies_stable_conditions(2, &GOOD_CASE);
+        assert_eq!(actual, true);
+    }
 }
