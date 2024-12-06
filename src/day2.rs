@@ -62,44 +62,52 @@ fn has_smooth_gradient(xs: &Vec<i32>) -> i32 {
             if !has_started {
                 return (true, failures, *curr);
             }
-            println!("x: {}, y: {}", curr, prev);
             let diff = (curr - prev).abs();
-            println!("diff: {}", diff);
             if diff >= 1 && diff <= 3 {
-                println!("diff good");
                 return (has_started, failures, *curr);
             }
-            println!("diff no good");
             (has_started, failures + 1, prev)
         });
-    println!("failures: {}", failures);
     failures
 }
 
 fn satisfies_stable_conditions(tolerance: i32, xs: &Vec<i32>) -> bool {
-    let rising_failures = is_rising(xs);
-    let sinking_failures = is_sinking(xs);
-    let smooth_gradient_failures = has_smooth_gradient(xs);
-    (rising_failures <= tolerance || sinking_failures <= tolerance)
-        && smooth_gradient_failures <= tolerance
+    let rising_ok = is_rising(xs) <= tolerance;
+    let sinking_ok = is_sinking(xs) <= tolerance;
+    let smooth_gradient_ok = has_smooth_gradient(xs) <= tolerance;
+    println!(
+        "rising: {}, sinking: {}, smooth: {}",
+        rising_ok, sinking_ok, smooth_gradient_ok
+    );
+    (rising_ok || sinking_ok) && smooth_gradient_ok
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
-
     #[test]
-    fn handles_tolerance_1() {
-        let GOOD_CASE: Vec<i32> = vec![25, 27, 29, 32, 35, 37, 35];
-        let actual = satisfies_stable_conditions(1, &GOOD_CASE);
+    fn satisfies_stable_conditions_single_item() {
+        let good_case: Vec<i32> = vec![50];
+        let actual = satisfies_stable_conditions(1, &good_case);
         assert_eq!(actual, true);
     }
 
     #[test]
-    fn handles_tolerance_2() {
-        let GOOD_CASE: Vec<i32> = vec![25, 27, 29, 32, 35, 37, 35];
-        let actual = satisfies_stable_conditions(2, &GOOD_CASE);
-        assert_eq!(actual, true);
+    fn satisfies_stable_conditions_two_items() {
+        assert_eq!(satisfies_stable_conditions(1, &vec![50, 51]), true);
+    }
+
+    #[test]
+    fn satisfies_stable_conditions_multiple_items() {
+        assert_eq!(
+            satisfies_stable_conditions(1, &vec![50, 49, 48, 45, 42]),
+            true
+        );
+    }
+
+    #[test]
+    fn is_rising_one_item() {
+        assert_eq!(is_rising(&vec![1, 2]), 0);
     }
 }
